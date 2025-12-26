@@ -16,15 +16,15 @@ let winnerInput = '';
 
 // Listen for Ctrl+Name shortcut
 window.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key.length === 1) {
-        // Ctrl is held down, start capturing input
+    if (e.ctrlKey && e.key.length === 1 && e.key.match(/[a-z]/i)) {
+        // Ctrl is held down with a letter, start capturing input
         if (!winnerModeActive) {
             winnerModeActive = true;
             winnerInput = '';
         }
         // Add the character to winner input
         winnerInput += e.key.toLowerCase();
-        e.preventDefault();
+        e.preventDefault(); // Prevent browser default shortcuts
     } else if (e.ctrlKey && e.key === 'Backspace') {
         // Allow backspace while Ctrl is held
         if (winnerModeActive) {
