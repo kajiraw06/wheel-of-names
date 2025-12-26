@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Names (Controlled Winner)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="names-container">
+        <h1>Wheel of Names</h1>
+        <form id="namesForm">
+            <label for="names">Enter names (one per line):</label><br>
+            <textarea id="names" name="names" placeholder="Alice&#10;Bob&#10;Charlie&#10;David" required autocomplete="off" rows="5"></textarea><br><br>
+            <button type="submit">Set Names</button>
+        </form>
+    </div>
+    
+    <div class="wheel-container">
+        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+        <button id="spinBtn" disabled>Spin</button>
+        <div id="winnerDisplay" class="winner-display"></div>
+    </div>
+    <div class="logo-branding">
+        <img src="t2bbb.png" alt="TIME2BET Logo" class="logo-img">
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
