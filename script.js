@@ -319,6 +319,12 @@ function showWinner(winnerName) {
     winnerDisplay.textContent = `🎊 Winner: ${winnerName}! 🎊`;
     winnerDisplay.classList.add('show');
     
+    // Show modal popup
+    const modal = document.getElementById('winnerModal');
+    const winnerNamePopup = document.getElementById('winnerNamePopup');
+    winnerNamePopup.textContent = winnerName;
+    modal.classList.add('show');
+    
     // Play winner sound effect
     playWinnerSound();
     
@@ -508,3 +514,23 @@ function playSpinningSound() {
         }
     };
 }
+// Modal close functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('winnerModal');
+    const closeBtn = document.querySelector('.close-modal');
+    const modalCloseBtn = document.querySelector('.modal-close-btn');
+    
+    function closeModal() {
+        modal.classList.remove('show');
+    }
+    
+    closeBtn.addEventListener('click', closeModal);
+    modalCloseBtn.addEventListener('click', closeModal);
+    
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+});
