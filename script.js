@@ -14,40 +14,42 @@ let spinning = false;
 let winnerModeActive = false;
 let winnerInput = '';
 
-// Listen for secret shortcut: Ctrl+Alt+N
+// Listen for Ctrl+Name shortcut
 window.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'n' && !winnerModeActive) {
-        winnerModeActive = true;
-        winnerInput = '';
-        // Prevent default to avoid browser conflicts
-        e.preventDefault();
-    } else if (winnerModeActive) {
-        // If Escape, cancel
-        if (e.key === 'Escape') {
-            winnerModeActive = false;
+    if (e.ctrlKey && e.key.length === 1) {
+        // Ctrl is held down, start capturing input
+        if (!winnerModeActive) {
+            winnerModeActive = true;
             winnerInput = '';
-            return;
         }
-        // If Enter, try to set winner
-        if (e.key === 'Enter') {
-            if (winnerInput.trim().length > 0) {
-                // Find first name that includes the input (case-insensitive)
-                const match = names.find(n => n.toLowerCase().includes(winnerInput.trim().toLowerCase()));
-                if (match) {
-                    winner = match;
-                }
-            }
-            winnerModeActive = false;
-            winnerInput = '';
-            e.preventDefault();
-        } else if (e.key.length === 1) {
-            // Only add visible characters
-            winnerInput += e.key;
-        } else if (e.key === 'Backspace') {
+        // Add the character to winner input
+        winnerInput += e.key.toLowerCase();
+        e.preventDefault();
+    } else if (e.ctrlKey && e.key === 'Backspace') {
+        // Allow backspace while Ctrl is held
+        if (winnerModeActive) {
             winnerInput = winnerInput.slice(0, -1);
+            e.preventDefault();
         }
-        // Prevent input from appearing in any focused field
-        e.preventDefault();
+    }
+});
+
+// Listen for when Ctrl is released
+window.addEventListener('keyup', function(e) {
+    if (!e.ctrlKey && winnerModeActive) {
+        // Ctrl was released, try to set the winner
+        if (winnerInput.trim().length > 0) {
+            // Find first name that includes the input (case-insensitive)
+            const match = names.find(n => n.toLowerCase().includes(winnerInput.trim()));
+            if (match) {
+                winner = match;
+                spinning = true;
+                spinning = false;
+                stopSpin();
+            }
+        }
+        winnerModeActive = false;
+        winnerInput = '';
     }
 });
 
