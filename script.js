@@ -14,19 +14,19 @@ let spinning = false;
 let winnerModeActive = false;
 let winnerInput = '';
 
-// Listen for Ctrl+Name shortcut
+// Listen for Shift+Name shortcut
 window.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key.length === 1 && e.key.match(/[a-z]/i)) {
-        // Ctrl is held down with a letter, start capturing input
+    if (e.shiftKey && e.key.length === 1 && e.key.match(/[a-z]/i)) {
+        // Shift is held down with a letter, start capturing input
         if (!winnerModeActive) {
             winnerModeActive = true;
             winnerInput = '';
         }
-        // Add the character to winner input
+        // Add the character to winner input (use lowercase)
         winnerInput += e.key.toLowerCase();
-        e.preventDefault(); // Prevent browser default shortcuts
-    } else if (e.ctrlKey && e.key === 'Backspace') {
-        // Allow backspace while Ctrl is held
+        e.preventDefault(); // Prevent browser default
+    } else if (e.shiftKey && e.key === 'Backspace') {
+        // Allow backspace while Shift is held
         if (winnerModeActive) {
             winnerInput = winnerInput.slice(0, -1);
             e.preventDefault();
@@ -34,10 +34,10 @@ window.addEventListener('keydown', function(e) {
     }
 });
 
-// Listen for when Ctrl is released
+// Listen for when Shift is released
 window.addEventListener('keyup', function(e) {
-    if (!e.ctrlKey && winnerModeActive) {
-        // Ctrl was released, try to set the winner
+    if (!e.shiftKey && winnerModeActive) {
+        // Shift was released, try to set the winner
         if (winnerInput.trim().length > 0) {
             // Find first name that includes the input (case-insensitive)
             const match = names.find(n => n.toLowerCase().includes(winnerInput.trim()));
