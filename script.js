@@ -11,8 +11,8 @@ let winner = '';
 let spinning = false;
 let currentRotation = 0;
 
-// Wheel colors - Blue and White matching the image
-const WHEEL_COLORS = ['#2563a8', '#ffffff'];
+// Wheel colors - Blue, White, and Orange matching the theme
+const WHEEL_COLORS = ['#2563a8', '#ffffff', '#fd9201'];
 
 // Secret winner mode state
 let winnerModeActive = false;
