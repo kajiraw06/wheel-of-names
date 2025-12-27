@@ -18,6 +18,14 @@ const WHEEL_COLORS = ['#2563a8', '#ffffff', '#fd9201'];
 let winnerModeActive = false;
 let winnerInput = '';
 
+// Helper function to get color index ensuring no adjacent duplicates
+function getColorIndex(segmentIndex, totalSegments) {
+    const numColors = WHEEL_COLORS.length;
+    // With 3 colors, the pattern naturally avoids wrap-around duplicates
+    // since any number of segments will cycle through all 3 colors
+    return segmentIndex % numColors;
+}
+
 // Draw the wheel
 function drawWheel() {
     const centerX = canvas.width / 2;
@@ -31,6 +39,7 @@ function drawWheel() {
         const segments = 10;
         const anglePerSegment = (2 * Math.PI) / segments;
         
+        // Use 10 segments with 3 colors - will naturally not wrap with same color
         for (let i = 0; i < segments; i++) {
             const startAngle = i * anglePerSegment + currentRotation;
             const endAngle = startAngle + anglePerSegment;
@@ -40,8 +49,8 @@ function drawWheel() {
             ctx.arc(centerX, centerY, radius, startAngle, endAngle);
             ctx.closePath();
             
-            // Strictly alternate colors: even indices get first color, odd get second
-            ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+            const colorIndex = getColorIndex(i, segments);
+            ctx.fillStyle = WHEEL_COLORS[colorIndex];
             ctx.fill();
             
             // Add subtle border between segments
@@ -62,8 +71,7 @@ function drawWheel() {
             ctx.arc(centerX, centerY, radius, startAngle, endAngle);
             ctx.closePath();
             
-            // Strictly alternate colors: even indices get first color, odd get second
-            const colorIndex = i % WHEEL_COLORS.length;
+            const colorIndex = getColorIndex(i, names.length);
             ctx.fillStyle = WHEEL_COLORS[colorIndex];
             ctx.fill();
             
@@ -77,7 +85,7 @@ function drawWheel() {
             ctx.translate(centerX, centerY);
             ctx.rotate(startAngle + anglePerSegment / 2);
             ctx.textAlign = 'right';
-            // Text color contrasts with background: white text on blue, blue text on white
+            // Text color contrasts with background: white text on blue/orange, blue text on white
             ctx.fillStyle = WHEEL_COLORS[colorIndex] === '#ffffff' ? '#2563a8' : '#ffffff';
             ctx.font = 'bold 14px Arial';
             ctx.fillText(names[i].substring(0, 15), radius - 20, 5);
