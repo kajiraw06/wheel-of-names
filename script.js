@@ -332,7 +332,20 @@ function playWinnerSound() {
     const soundFiles = ['sfx/Win #1.mp3', 'sfx/Win #2.mp3'];
     const audio = new Audio(soundFiles[winnerSoundIndex]);
     audio.volume = 0.7;
-    audio.play();
+    
+    console.log('Attempting to play:', soundFiles[winnerSoundIndex]);
+    
+    audio.play().then(() => {
+        console.log('Sound played successfully');
+    }).catch(error => {
+        console.error('Error playing sound:', error);
+        // Try to play without promise handling for older browsers
+        try {
+            audio.play();
+        } catch (e) {
+            console.error('Fallback audio play also failed:', e);
+        }
+    });
     
     // Alternate for next time
     winnerSoundIndex = (winnerSoundIndex + 1) % 2;
