@@ -40,7 +40,8 @@ function drawWheel() {
             ctx.arc(centerX, centerY, radius, startAngle, endAngle);
             ctx.closePath();
             
-            ctx.fillStyle = WHEEL_COLORS[i % 2];
+            // Strictly alternate colors: even indices get first color, odd get second
+            ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
             ctx.fill();
             
             // Add subtle border between segments
@@ -61,7 +62,9 @@ function drawWheel() {
             ctx.arc(centerX, centerY, radius, startAngle, endAngle);
             ctx.closePath();
             
-            ctx.fillStyle = WHEEL_COLORS[i % 2];
+            // Strictly alternate colors: even indices get first color, odd get second
+            const colorIndex = i % WHEEL_COLORS.length;
+            ctx.fillStyle = WHEEL_COLORS[colorIndex];
             ctx.fill();
             
             // Add subtle border between segments
@@ -74,7 +77,8 @@ function drawWheel() {
             ctx.translate(centerX, centerY);
             ctx.rotate(startAngle + anglePerSegment / 2);
             ctx.textAlign = 'right';
-            ctx.fillStyle = WHEEL_COLORS[i % 2] === '#ffffff' ? '#2563a8' : '#ffffff';
+            // Text color contrasts with background: white text on blue, blue text on white
+            ctx.fillStyle = WHEEL_COLORS[colorIndex] === '#ffffff' ? '#2563a8' : '#ffffff';
             ctx.font = 'bold 14px Arial';
             ctx.fillText(names[i].substring(0, 15), radius - 20, 5);
             ctx.restore();
