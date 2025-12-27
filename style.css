@@ -475,7 +475,7 @@ button:disabled::before {
 }
 
 .winner-display::before {
-    content: '🎉';
+    content: '';
     position: absolute;
     left: 20px;
     font-size: 2rem;
@@ -483,7 +483,7 @@ button:disabled::before {
 }
 
 .winner-display::after {
-    content: '🎉';
+    content: '';
     position: absolute;
     right: 20px;
     font-size: 2rem;
