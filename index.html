@@ -7,18 +7,33 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="logo-branding">
+        <img src="images/t2bbb.png" alt="TIME2BET Logo" class="logo-img">
+    </div>
+
     <div class="names-container">
-        <h1>Wheel of Names</h1>
-        <form id="namesForm">
-            <label for="names">Enter names (one per line):</label><br>
-            <textarea id="names" name="names" placeholder="Alice&#10;Bob&#10;Charlie&#10;David" required autocomplete="off" rows="5"></textarea><br><br>
-            <button type="submit">Set Names</button>
-        </form>
+        <h1><img src="images/wheel of names.png" alt="Wheel of Names"></h1>
+        <div class="list-frame-wrapper">
+            <img src="images/list frame.png" alt="Frame" class="list-frame">
+            <form id="namesForm">
+                <textarea id="names" name="names" placeholder="Enter names here&#10;One per line" required autocomplete="off" rows="5"></textarea>
+            </form>
+        </div>
     </div>
     
     <div class="wheel-container">
-        <canvas id="wheelCanvas" width="500" height="500"></canvas>
-        <button id="spinBtn" disabled>Spin</button>
+        <div class="wheel-wrapper">
+            <div class="wheel-frame">
+                <img src="images/frame.png" alt="Frame">
+            </div>
+            <canvas id="wheelCanvas" width="670" height="670"></canvas>
+            <div class="spin-pointer-group">
+                <div class="wheel-pointer">
+                    <img src="images/pointer.png" alt="Pointer" class="pointer-img">
+                </div>
+                <button id="spinBtn"><img src="images/button.png" alt="SPIN"></button>
+            </div>
+        </div>
         <div id="winnerDisplay" class="winner-display"></div>
     </div>
     
@@ -28,16 +43,18 @@
             <div class="winner-modal-header">
                 <span class="close-modal">&times;</span>
             </div>
-            <div class="confetti-popup"></div>
             <h2 class="winner-title">🎉 WINNER 🎉</h2>
             <p class="winner-name-popup" id="winnerNamePopup"></p>
             <p class="winner-message">Congratulations!</p>
             <button class="modal-close-btn">Close</button>
         </div>
     </div>
-    
-    <div class="logo-branding">
-        <img src="t2bbb.png" alt="TIME2BET Logo" class="logo-img">
+
+    <div class="girl-decoration">
+        <img src="images/girl.png" alt="Girl" class="girl-img">
+    </div>
+    <div class="coins-decoration coins-1">
+        <img src="images/coins.png" alt="Coin" class="coin-img">
     </div>
     <script src="script.js"></script>
 </body>

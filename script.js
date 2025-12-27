@@ -4,29 +4,105 @@ const spinBtn = document.getElementById('spinBtn');
 const canvas = document.getElementById('wheelCanvas');
 const ctx = canvas.getContext('2d');
 const winnerDisplay = document.getElementById('winnerDisplay');
-
+const wheelFrame = document.querySelector('.wheel-frame');
 
 let names = [];
 let winner = '';
 let spinning = false;
+let currentRotation = 0;
+
+// Wheel colors - Blue and White matching the image
+const WHEEL_COLORS = ['#2563a8', '#ffffff'];
 
 // Secret winner mode state
 let winnerModeActive = false;
 let winnerInput = '';
 
+// Draw the wheel
+function drawWheel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) - 5;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (names.length === 0) {
+        // Draw empty wheel with 10 segments
+        const segments = 10;
+        const anglePerSegment = (2 * Math.PI) / segments;
+        
+        for (let i = 0; i < segments; i++) {
+            const startAngle = i * anglePerSegment + currentRotation;
+            const endAngle = startAngle + anglePerSegment;
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.closePath();
+            
+            ctx.fillStyle = WHEEL_COLORS[i % 2];
+            ctx.fill();
+            
+            // Add subtle border between segments
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+    } else {
+        const anglePerSegment = (2 * Math.PI) / names.length;
+        
+        for (let i = 0; i < names.length; i++) {
+            const startAngle = i * anglePerSegment + currentRotation;
+            const endAngle = startAngle + anglePerSegment;
+            
+            // Draw segment
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.closePath();
+            
+            ctx.fillStyle = WHEEL_COLORS[i % 2];
+            ctx.fill();
+            
+            // Add subtle border between segments
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // Draw text
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(startAngle + anglePerSegment / 2);
+            ctx.textAlign = 'right';
+            ctx.fillStyle = WHEEL_COLORS[i % 2] === '#ffffff' ? '#2563a8' : '#ffffff';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(names[i].substring(0, 15), radius - 20, 5);
+            ctx.restore();
+        }
+    }
+    
+    // Draw center circle gradient effect
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    gradient.addColorStop(0, 'rgba(255,255,255,0.1)');
+    gradient.addColorStop(0.5, 'rgba(0,0,0,0)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0.15)');
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+}
+
 // Listen for Shift+Name shortcut
 window.addEventListener('keydown', function(e) {
     if (e.shiftKey && e.key.length === 1 && e.key.match(/[a-z]/i)) {
-        // Shift is held down with a letter, start capturing input
         if (!winnerModeActive) {
             winnerModeActive = true;
             winnerInput = '';
         }
-        // Add the character to winner input (use lowercase)
         winnerInput += e.key.toLowerCase();
-        e.preventDefault(); // Prevent browser default
+        e.preventDefault();
     } else if (e.shiftKey && e.key === 'Backspace') {
-        // Allow backspace while Shift is held
         if (winnerModeActive) {
             winnerInput = winnerInput.slice(0, -1);
             e.preventDefault();
@@ -37,15 +113,10 @@ window.addEventListener('keydown', function(e) {
 // Listen for when Shift is released
 window.addEventListener('keyup', function(e) {
     if (!e.shiftKey && winnerModeActive) {
-        // Shift was released, try to set the winner
         if (winnerInput.trim().length > 0) {
-            // Find first name that includes the input (case-insensitive)
             const match = names.find(n => n.toLowerCase().includes(winnerInput.trim()));
             if (match) {
                 winner = match;
-                spinning = true;
-                spinning = false;
-                stopSpin();
             }
         }
         winnerModeActive = false;
@@ -53,43 +124,32 @@ window.addEventListener('keyup', function(e) {
     }
 });
 
-
-// Secret winner setting: double-click a name on the wheel
+// Secret winner setting: double-click canvas
 canvas.addEventListener('dblclick', function(e) {
     if (!names.length) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left - canvas.width / 2;
-    const y = e.clientY - rect.top - canvas.height / 2;
-    const radius = canvas.width / 2 - 10;
-    if (x * x + y * y > radius * radius) return; // Only allow inside the wheel
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const radius = rect.width / 2 - 10;
+    if (x * x + y * y > radius * radius) return;
     
-    // Calculate angle from the positive x-axis (right), counter-clockwise
     let angle = Math.atan2(y, x);
-    
-    // Convert to start from top (12 o'clock) going clockwise
-    // atan2 gives us angle from right (0), counter-clockwise
-    // We need angle from top (90 degrees or PI/2), clockwise
     angle = -angle + Math.PI / 2;
     
-    // Normalize to 0 to 2*PI
     if (angle < 0) angle += 2 * Math.PI;
     
     const n = names.length;
     const anglePerSegment = 2 * Math.PI / n;
-    
-    // Offset by half a segment to match text position
     const adjustedAngle = (angle + anglePerSegment / 2) % (2 * Math.PI);
     const index = Math.floor(adjustedAngle / anglePerSegment) % n;
     
     if (index >= 0 && index < n) {
         winner = names[index];
-        // Silent rigging - no notification
     }
 });
 
 // Function to update names from input
 function updateNamesFromInput() {
-    // Split by newlines first, then fallback to comma if no newlines
     let inputValue = namesInput.value;
     if (inputValue.includes('\n')) {
         names = inputValue.split('\n').map(n => n.trim()).filter(n => n);
@@ -98,15 +158,13 @@ function updateNamesFromInput() {
     }
     if (names.length === 0) {
         spinBtn.disabled = true;
-        drawWheel([]);
-        return;
+    } else {
+        spinBtn.disabled = false;
     }
-    // If the current winner is not in the new list, reset winner
     if (!names.includes(winner)) {
         winner = '';
     }
-    spinBtn.disabled = false;
-    drawWheel(names);
+    drawWheel();
 }
 
 // Update wheel automatically as user types
@@ -114,96 +172,26 @@ namesInput.addEventListener('input', function() {
     updateNamesFromInput();
 });
 
-// Also handle form submission (for backward compatibility)
+// Also handle form submission
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     updateNamesFromInput();
 });
 
 spinBtn.addEventListener('click', function() {
-    if (!spinning && names.length > 1) {
+    if (!spinning && names.length > 0) {
         playClickSound();
         let spinWinner = winner && names.includes(winner) ? winner : names[Math.floor(Math.random() * names.length)];
         spinToWinner(spinWinner);
     }
 });
 
-// Add click sound to all buttons
-document.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', function() {
-        if (!this.disabled) {
-            playClickSound();
-        }
-    });
-});
-
-function drawWheel(namesArr, highlightIndex = -1) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = centerX - 10;
-    const n = namesArr.length;
-    if (n === 0) return;
-    const anglePer = 2 * Math.PI / n;
-    // Draw wheel segments and names
-    for (let i = 0; i < n; i++) {
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, i * anglePer, (i + 1) * anglePer);
-        ctx.closePath();
-        // Time2Bet Casino theme: dark luxurious colors with gold/orange accents
-        const casinoColors = [
-            '#fd9201', // signature orange
-            '#2a2a40', // dark purple
-            '#ffa726', // light orange
-            '#1e1e30', // darker blue
-            '#ffb74d', // lighter orange
-            '#16213e', // navy blue
-            '#ff9800', // orange
-            '#0f3460', // deep blue
-            '#c97d01', // dark orange
-            '#1a1a2e', // dark purple blue
-            '#fd9201', // signature orange repeat
-            '#2a4365'  // slate blue
-        ];
-        ctx.fillStyle = i === highlightIndex ? '#FFD700' : casinoColors[i % casinoColors.length];
-        ctx.fill();
-        // Add white separator lines between segments
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(i * anglePer + anglePer / 2);
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 16px Arial';
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
-        ctx.strokeText(namesArr[i], radius - 10, 8);
-        ctx.fillText(namesArr[i], radius - 10, 8);
-        ctx.restore();
-    }
-    // Draw pointer in fixed position (top center, but pointing down)
-    ctx.save();
-    ctx.translate(centerX, centerY - radius + 10); // move pointer tip 10px inside the canvas
-    ctx.rotate(Math.PI); // rotate 180 degrees to point down
-    ctx.beginPath();
-    ctx.moveTo(0, 0); // tip
-    ctx.lineTo(-10, 20); // left base
-    ctx.lineTo(10, 20); // right base
-    ctx.closePath();
-    ctx.fillStyle = '#ffd700';
-    ctx.fill();
-    ctx.restore();
-}
-
-drawWheel([]);
-
 function spinToWinner(winnerName) {
     spinning = true;
     spinBtn.disabled = true;
-    canvas.classList.add('spinning');
+    
+    // Add glow effect to the frame
+    wheelFrame.classList.add('spinning');
     
     // Start spinning sound
     const spinSound = playSpinningSound();
@@ -216,99 +204,45 @@ function spinToWinner(winnerName) {
     const n = names.length;
     const winnerIndex = names.indexOf(winnerName);
     const anglePer = 2 * Math.PI / n;
-    const randomRounds = 5 + Math.floor(Math.random() * 3); // 5-7 full spins
+    const randomRounds = 8 + Math.floor(Math.random() * 4);
+    
+    // Normalize current rotation to 0-2π range
+    currentRotation = currentRotation % (2 * Math.PI);
+    if (currentRotation < 0) currentRotation += 2 * Math.PI;
+    
+    // Calculate final angle so winner is at top (pointer position)
     const finalAngle = (3 * Math.PI / 2) - (winnerIndex * anglePer) - anglePer / 2;
-    const totalAngle = 2 * Math.PI * randomRounds + finalAngle;
+    const totalAngle = 2 * Math.PI * randomRounds + finalAngle - currentRotation;
+    const startRotation = currentRotation;
     let startTimestamp = null;
-    let duration = 5000 + Math.random() * 1000; // 5-6 seconds for dramatic effect
+    const duration = 7000 + Math.random() * 1000;
 
     function animateWheel(timestamp) {
         if (!startTimestamp) startTimestamp = timestamp;
         const elapsed = timestamp - startTimestamp;
         const progress = Math.min(1, elapsed / duration);
         
-        // Dramatic slow-mo easing - very slow at the end
-        let ease;
-        if (progress < 0.7) {
-            ease = progress / 0.7 * 0.9; // Fast for first 70%
-        } else {
-            // Slow dramatic finale for last 30%
-            const finalProgress = (progress - 0.7) / 0.3;
-            ease = 0.9 + (0.1 * (1 - Math.pow(1 - finalProgress, 4)));
-        }
+        // Smooth easing - cubic ease out for natural deceleration
+        const ease = 1 - Math.pow(1 - progress, 3);
         
-        const currentAngle = ease * totalAngle;
-        ctx.save();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(currentAngle);
-        ctx.translate(-canvas.width / 2, -canvas.height / 2);
-        // Draw only the wheel (no pointer)
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = centerX - 10;
-        const n = names.length;
-        const anglePer = 2 * Math.PI / n;
-        for (let i = 0; i < n; i++) {
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, i * anglePer, (i + 1) * anglePer);
-            ctx.closePath();
-            // Time2Bet Casino theme: dark luxurious colors with gold/orange accents
-            const casinoColors = [
-                '#fd9201', // signature orange
-                '#2a2a40', // dark purple
-                '#ffa726', // light orange
-                '#1e1e30', // darker blue
-                '#ffb74d', // lighter orange
-                '#16213e', // navy blue
-                '#ff9800', // orange
-                '#0f3460', // deep blue
-                '#c97d01', // dark orange
-                '#1a1a2e', // dark purple blue
-                '#fd9201', // signature orange repeat
-                '#2a4365'  // slate blue
-            ];
-            ctx.fillStyle = i === -1 ? '#FFD700' : casinoColors[i % casinoColors.length];
-            ctx.fill();
-            // Add white separator lines between segments
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            ctx.save();
-            ctx.translate(centerX, centerY);
-            ctx.rotate(i * anglePer + anglePer / 2);
-            ctx.textAlign = 'right';
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px Arial';
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
-            ctx.strokeText(names[i], radius - 10, 8);
-            ctx.fillText(names[i], radius - 10, 8);
-            ctx.restore();
-        }
-        ctx.restore();
-        // Draw pointer in fixed position (top center, but pointing down)
-        ctx.save();
-        ctx.translate(canvas.width / 2, canvas.height / 2 - radius + 10); // move pointer tip 10px inside the canvas
-        ctx.rotate(Math.PI); // rotate 180 degrees to point down
-        ctx.beginPath();
-        ctx.moveTo(0, 0); // tip
-        ctx.lineTo(-10, 20); // left base
-        ctx.lineTo(10, 20); // right base
-        ctx.closePath();
-        ctx.fillStyle = '#ffd700';
-        ctx.fill();
-        ctx.restore();
+        currentRotation = startRotation + ease * totalAngle;
+        drawWheel();
+        
+        // Rotate the frame along with the wheel
+        const degrees = (currentRotation * 180) / Math.PI;
+        wheelFrame.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
+        
         if (progress < 1) {
             requestAnimationFrame(animateWheel);
         } else {
             clearInterval(sparkleInterval);
-            canvas.classList.remove('spinning');
             spinSound.stop();
             spinning = false;
             spinBtn.disabled = false;
-            drawWheel(names, winnerIndex);
+            
+            // Remove glow effect
+            wheelFrame.classList.remove('spinning');
+            
             setTimeout(() => {
                 showWinner(winnerName);
             }, 300);
@@ -318,41 +252,15 @@ function spinToWinner(winnerName) {
 }
 
 function showWinner(winnerName) {
-    winnerDisplay.textContent = `🎊 Winner: ${winnerName}! 🎊`;
-    winnerDisplay.classList.add('show');
-    
-    // Show modal popup
     const modal = document.getElementById('winnerModal');
     const winnerNamePopup = document.getElementById('winnerNamePopup');
     winnerNamePopup.textContent = winnerName;
     modal.classList.add('show');
-    
-    // Play winner sound effect
-    playWinnerSound();
-    
-    // Add screen shake effect
-    document.querySelector('.wheel-container').style.animation = 'shake 0.5s ease-in-out';
-    
-    // Remove shake after animation
-    setTimeout(() => {
-        document.querySelector('.wheel-container').style.animation = '';
-    }, 500);
-    
-    // Create confetti particles
-    createConfetti();
-    
-    // Hide winner display after 7 seconds
-    setTimeout(() => {
-        winnerDisplay.classList.remove('show');
-    }, 7000);
 }
 
 function playWinnerSound() {
-    // Create AudioContext for sound generation
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    
-    // Victory fanfare sound
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    const notes = [523.25, 659.25, 783.99, 1046.50];
     const duration = 0.15;
     
     notes.forEach((frequency, index) => {
@@ -391,7 +299,6 @@ function createConfetti() {
         confetti.style.zIndex = '9999';
         container.appendChild(confetti);
         
-        // Remove confetti after animation
         setTimeout(() => {
             confetti.remove();
         }, 3500);
@@ -447,9 +354,8 @@ function playClickSound() {
 function playSpinningSound() {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Create a pulsing tick sound like a casino wheel
     let tickInterval;
-    let tickDelay = 50; // Start with fast ticking
+    let tickDelay = 50;
     let isStopping = false;
     
     function playTick() {
@@ -463,7 +369,6 @@ function playSpinningSound() {
         filter.connect(gainNode);
         gainNode.connect(audioContext.destination);
         
-        // Crisp tick sound
         oscillator.frequency.value = 1200;
         oscillator.type = 'square';
         
@@ -477,7 +382,6 @@ function playSpinningSound() {
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.05);
         
-        // Gradually slow down the ticking
         tickDelay = Math.min(tickDelay + 2, 300);
         
         if (!isStopping) {
@@ -485,10 +389,8 @@ function playSpinningSound() {
         }
     }
     
-    // Start ticking
     playTick();
     
-    // Add background whoosh
     const whoosh = audioContext.createOscillator();
     const whooshGain = audioContext.createGain();
     const whooshFilter = audioContext.createBiquadFilter();
@@ -516,6 +418,7 @@ function playSpinningSound() {
         }
     };
 }
+
 // Modal close functionality
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('winnerModal');
@@ -529,10 +432,32 @@ document.addEventListener('DOMContentLoaded', function() {
     closeBtn.addEventListener('click', closeModal);
     modalCloseBtn.addEventListener('click', closeModal);
     
-    // Close modal when clicking outside of it
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
             closeModal();
         }
     });
+    
+    // Resize canvas based on CSS dimensions
+    function resizeCanvas() {
+        const canvasStyle = window.getComputedStyle(canvas);
+        const width = parseInt(canvasStyle.width);
+        const height = parseInt(canvasStyle.height);
+        
+        // Update canvas internal resolution
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Redraw wheel with new dimensions
+        drawWheel();
+    }
+    
+    // Initial resize
+    resizeCanvas();
+    
+    // Handle window resize
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Disable spin button initially
+    spinBtn.disabled = true;
 });
