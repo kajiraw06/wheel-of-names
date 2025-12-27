@@ -329,7 +329,7 @@ function showWinner(winnerName) {
 
 function playWinnerSound() {
     // Alternate between the two winner sound effects
-    const soundFiles = ['sfx/Win #1.mp3', 'sfx/Win #2.mp3'];
+    const soundFiles = ['sfx/win1.mp3', 'sfx/win2.mp3'];
     const audio = new Audio(soundFiles[winnerSoundIndex]);
     audio.volume = 0.7;
     
