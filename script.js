@@ -18,6 +18,9 @@ const WHEEL_COLORS = ['#2563a8', '#ffffff', '#fd9201'];
 let winnerModeActive = false;
 let winnerInput = '';
 
+// Winner sound alternation counter
+let winnerSoundIndex = 0;
+
 // Helper function to get color index ensuring no adjacent duplicates
 function getColorIndex(segmentIndex, totalSegments) {
     const numColors = WHEEL_COLORS.length;
@@ -310,6 +313,9 @@ function showWinner(winnerName) {
     winnerNamePopup.textContent = winnerName;
     modal.classList.add('show');
     
+    // Play alternating winner sound
+    playWinnerSound();
+    
     // Auto-remove the winner from the list
     const winnerIndex = names.indexOf(winnerName);
     if (winnerIndex > -1) {
@@ -322,27 +328,14 @@ function showWinner(winnerName) {
 }
 
 function playWinnerSound() {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [523.25, 659.25, 783.99, 1046.50];
-    const duration = 0.15;
+    // Alternate between the two winner sound effects
+    const soundFiles = ['sfx/Win #1.mp3', 'sfx/Win #2.mp3'];
+    const audio = new Audio(soundFiles[winnerSoundIndex]);
+    audio.volume = 0.7;
+    audio.play();
     
-    notes.forEach((frequency, index) => {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = frequency;
-        oscillator.type = 'sine';
-        
-        const startTime = audioContext.currentTime + (index * duration);
-        gainNode.gain.setValueAtTime(0.3, startTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-        
-        oscillator.start(startTime);
-        oscillator.stop(startTime + duration);
-    });
+    // Alternate for next time
+    winnerSoundIndex = (winnerSoundIndex + 1) % 2;
 }
 
 function createConfetti() {
