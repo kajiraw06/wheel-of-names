@@ -21,9 +21,55 @@ let winnerInput = '';
 // Helper function to get color index ensuring no adjacent duplicates
 function getColorIndex(segmentIndex, totalSegments) {
     const numColors = WHEEL_COLORS.length;
-    // With 3 colors, the pattern naturally avoids wrap-around duplicates
-    // since any number of segments will cycle through all 3 colors
-    return segmentIndex % numColors;
+    
+    // Distribute colors evenly to avoid any adjacent segments having the same color
+    // Calculate the optimal spacing between same colors
+    const colorSpacing = Math.floor(totalSegments / numColors);
+    const remainder = totalSegments % numColors;
+    
+    // Use a distribution pattern that spaces colors evenly
+    // This ensures no two adjacent segments have the same color
+    let colorIndex;
+    if (totalSegments <= numColors) {
+        // If we have fewer segments than colors, just use sequential colors
+        colorIndex = segmentIndex;
+    } else {
+        // Distribute colors in a round-robin pattern with optimal spacing
+        // Map segment index to color ensuring maximum spacing
+        const pattern = [];
+        for (let color = 0; color < numColors; color++) {
+            const segmentsForThisColor = colorSpacing + (color < remainder ? 1 : 0);
+            for (let j = 0; j < segmentsForThisColor; j++) {
+                pattern.push(color);
+            }
+        }
+        
+        // Rearrange to distribute evenly (interleave colors)
+        const distributed = [];
+        const segmentsPerColor = [];
+        for (let i = 0; i < numColors; i++) {
+            segmentsPerColor[i] = [];
+        }
+        
+        let colorIdx = 0;
+        for (let i = 0; i < pattern.length; i++) {
+            segmentsPerColor[pattern[i]].push(pattern[i]);
+        }
+        
+        // Interleave the colors
+        let maxLen = Math.max(...segmentsPerColor.map(arr => arr.length));
+        for (let i = 0; i < maxLen; i++) {
+            for (let c = 0; c < numColors; c++) {
+                if (segmentsPerColor[c][i] !== undefined) {
+                    distributed.push(c);
+                }
+            }
+        }
+        
+        colorIndex = distributed[segmentIndex];
+    }
+    
+    return colorIndex;
 }
 
 // Draw the wheel
