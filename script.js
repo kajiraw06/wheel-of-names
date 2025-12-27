@@ -121,6 +121,7 @@ window.addEventListener('keyup', function(e) {
             const match = names.find(n => n.toLowerCase().includes(winnerInput.trim()));
             if (match) {
                 winner = match;
+                console.log('Winner set via keyboard to:', winner); // Debug message
             }
         }
         winnerModeActive = false;
@@ -140,6 +141,9 @@ canvas.addEventListener('dblclick', function(e) {
     let angle = Math.atan2(y, x);
     angle = -angle + Math.PI / 2;
     
+    // Account for current rotation
+    angle = angle - currentRotation;
+    
     if (angle < 0) angle += 2 * Math.PI;
     
     const n = names.length;
@@ -149,6 +153,7 @@ canvas.addEventListener('dblclick', function(e) {
     
     if (index >= 0 && index < n) {
         winner = names[index];
+        console.log('Winner set to:', winner); // Debug message
     }
 });
 
@@ -165,7 +170,9 @@ function updateNamesFromInput() {
     } else {
         spinBtn.disabled = false;
     }
-    if (!names.includes(winner)) {
+    // Only clear winner if the name is truly removed from the list
+    // Keep the winner if it still exists (even if names were just reordered or edited)
+    if (winner && !names.includes(winner)) {
         winner = '';
     }
     drawWheel();
@@ -210,16 +217,25 @@ function spinToWinner(winnerName) {
     const anglePer = 2 * Math.PI / n;
     const randomRounds = 8 + Math.floor(Math.random() * 4);
     
-    // Normalize current rotation to 0-2π range
-    currentRotation = currentRotation % (2 * Math.PI);
-    if (currentRotation < 0) currentRotation += 2 * Math.PI;
+    // Normalize current rotation to 0-2π range to prevent overflow issues
+    let normalizedRotation = currentRotation % (2 * Math.PI);
+    if (normalizedRotation < 0) normalizedRotation += 2 * Math.PI;
     
     // Calculate final angle so winner is at top (pointer position)
     const finalAngle = (3 * Math.PI / 2) - (winnerIndex * anglePer) - anglePer / 2;
-    const totalAngle = 2 * Math.PI * randomRounds + finalAngle - currentRotation;
-    const startRotation = currentRotation;
+    
+    // Calculate shortest path to the final angle
+    let targetAngle = finalAngle;
+    while (targetAngle < normalizedRotation) {
+        targetAngle += 2 * Math.PI;
+    }
+    
+    const totalAngle = 2 * Math.PI * randomRounds + (targetAngle - normalizedRotation);
+    const startRotation = normalizedRotation;
     let startTimestamp = null;
     const duration = 7000 + Math.random() * 1000;
+    
+    console.log('Spinning to winner:', winnerName, 'at index:', winnerIndex); // Debug message
 
     function animateWheel(timestamp) {
         if (!startTimestamp) startTimestamp = timestamp;
@@ -243,6 +259,10 @@ function spinToWinner(winnerName) {
             spinSound.stop();
             spinning = false;
             spinBtn.disabled = false;
+            
+            // Normalize rotation after spin to prevent number overflow
+            currentRotation = currentRotation % (2 * Math.PI);
+            if (currentRotation < 0) currentRotation += 2 * Math.PI;
             
             // Remove glow effect
             wheelFrame.classList.remove('spinning');
