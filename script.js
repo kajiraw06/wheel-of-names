@@ -22,54 +22,29 @@ let winnerInput = '';
 function getColorIndex(segmentIndex, totalSegments) {
     const numColors = WHEEL_COLORS.length;
     
-    // Distribute colors evenly to avoid any adjacent segments having the same color
-    // Calculate the optimal spacing between same colors
-    const colorSpacing = Math.floor(totalSegments / numColors);
-    const remainder = totalSegments % numColors;
+    // Simple sequential cycling through colors
+    // This naturally prevents adjacent duplicates since we have 3 colors
+    // With 3 colors: 0,1,2,0,1,2,0,1,2... no adjacent segments can be the same
+    // Examples:
+    // - 3 segments: Blue(0), White(1), Orange(2)
+    // - 4 segments: Blue(0), White(1), Orange(2), Blue(0) - wraps to Blue(1)... wait that's wrong
+    // - 6 segments: Blue(0), White(1), Orange(2), Blue(3%3=0), White(4%3=1), Orange(5%3=2)
     
-    // Use a distribution pattern that spaces colors evenly
-    // This ensures no two adjacent segments have the same color
-    let colorIndex;
-    if (totalSegments <= numColors) {
-        // If we have fewer segments than colors, just use sequential colors
-        colorIndex = segmentIndex;
-    } else {
-        // Distribute colors in a round-robin pattern with optimal spacing
-        // Map segment index to color ensuring maximum spacing
-        const pattern = [];
-        for (let color = 0; color < numColors; color++) {
-            const segmentsForThisColor = colorSpacing + (color < remainder ? 1 : 0);
-            for (let j = 0; j < segmentsForThisColor; j++) {
-                pattern.push(color);
-            }
-        }
-        
-        // Rearrange to distribute evenly (interleave colors)
-        const distributed = [];
-        const segmentsPerColor = [];
-        for (let i = 0; i < numColors; i++) {
-            segmentsPerColor[i] = [];
-        }
-        
-        let colorIdx = 0;
-        for (let i = 0; i < pattern.length; i++) {
-            segmentsPerColor[pattern[i]].push(pattern[i]);
-        }
-        
-        // Interleave the colors
-        let maxLen = Math.max(...segmentsPerColor.map(arr => arr.length));
-        for (let i = 0; i < maxLen; i++) {
-            for (let c = 0; c < numColors; c++) {
-                if (segmentsPerColor[c][i] !== undefined) {
-                    distributed.push(c);
-                }
-            }
-        }
-        
-        colorIndex = distributed[segmentIndex];
+    // Actually with 4 segments we get: 0,1,2,0 which means Blue(0)->White(1)->Orange(2)->Blue(0)
+    // That's fine because segment 3 (Blue) is not next to segment 0 (Blue) visually... 
+    // OH! segment 3 IS next to segment 0 because it wraps around!
+    
+    // We need to ensure (lastSegmentColor != firstSegmentColor)
+    // If totalSegments % numColors == 1, we have a problem
+    // Example: 4 segments with 3 colors: 0,1,2,0 - last(0) wraps to first(0) - PROBLEM!
+    
+    // Solution: When totalSegments % numColors == 1, skip color 0 on the last segment
+    if (totalSegments % numColors === 1 && segmentIndex === totalSegments - 1) {
+        // Last segment would be color 0, but first is also 0, so use color 1 instead
+        return 1;
     }
     
-    return colorIndex;
+    return segmentIndex % numColors;
 }
 
 // Draw the wheel
