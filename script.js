@@ -309,6 +309,16 @@ function showWinner(winnerName) {
     const winnerNamePopup = document.getElementById('winnerNamePopup');
     winnerNamePopup.textContent = winnerName;
     modal.classList.add('show');
+    
+    // Auto-remove the winner from the list
+    const winnerIndex = names.indexOf(winnerName);
+    if (winnerIndex > -1) {
+        names.splice(winnerIndex, 1);
+        // Update the textarea to reflect the removal
+        namesInput.value = names.join('\n');
+        // Redraw the wheel with remaining names
+        drawWheel();
+    }
 }
 
 function playWinnerSound() {
