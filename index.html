@@ -40,13 +40,22 @@
     <!-- Winner Popup Modal -->
     <div id="winnerModal" class="winner-modal">
         <div class="winner-modal-content">
-            <div class="winner-modal-header">
-                <span class="close-modal">&times;</span>
+            <img src="images/winner.png" alt="WINNER!" class="winner-title-img">
+            <div class="popup-frame">
+                <img src="images/popup_frame.png" alt="Frame" class="popup-frame-img">
+                <div class="popup-content-inner">
+                    <div class="winner-name-box">
+                        <img src="images/namebox.png" alt="Name Box" class="namebox-img">
+                        <p class="winner-name-popup" id="winnerNamePopup"></p>
+                    </div>
+                    <img src="images/congratulations.png" alt="Congratulations!" class="congratulations-img">
+                    <div class="modal-close-btn-small" onclick="document.getElementById('winnerModal').classList.remove('show')">
+                        <img src="images/popup_close button.png" alt="Close Button" class="close-btn-small-img">
+                        <img src="images/CLOSEtext.png" alt="CLOSE" class="close-btn-text">
+                    </div>
+                </div>
             </div>
-            <h2 class="winner-title">WINNER!</h2>
-            <p class="winner-name-popup" id="winnerNamePopup"></p>
-            <p class="winner-message">Congratulations!</p>
-            <button class="modal-close-btn">Close</button>
+            <img src="images/popup_coins.png" alt="Coins" class="popup-coins-img">
         </div>
     </div>
 

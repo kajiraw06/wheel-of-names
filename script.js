@@ -129,31 +129,42 @@ function drawWheel() {
     ctx.fill();
 }
 
-// Listen for Shift+Name shortcut
+// Listen for Backtick+Name shortcut (hold backtick while typing)
 window.addEventListener('keydown', function(e) {
-    if (e.shiftKey && e.key.length === 1 && e.key.match(/[a-z]/i)) {
+    if (e.key === '`') {
         if (!winnerModeActive) {
             winnerModeActive = true;
             winnerInput = '';
+            console.log('Winner mode activated - type a name');
         }
-        winnerInput += e.key.toLowerCase();
         e.preventDefault();
-    } else if (e.shiftKey && e.key === 'Backspace') {
-        if (winnerModeActive) {
-            winnerInput = winnerInput.slice(0, -1);
-            e.preventDefault();
-        }
+    } else if (e.ctrlKey && e.key === '`') {
+        // Prevent Ctrl+` conflicts
+        e.preventDefault();
     }
 });
 
-// Listen for when Shift is released
+window.addEventListener('keydown', function(e) {
+    // Check if backtick is being held (by checking if it's in the active keys)
+    const backtickHeld = e.getModifierState && e.getModifierState('Accel') === false; // Fallback detection
+    
+    if (winnerModeActive && e.key.length === 1 && e.key.match(/[a-z0-9]/i)) {
+        winnerInput += e.key.toLowerCase();
+        e.preventDefault();
+    } else if (winnerModeActive && e.key === 'Backspace') {
+        winnerInput = winnerInput.slice(0, -1);
+        e.preventDefault();
+    }
+});
+
+// Listen for when backtick is released
 window.addEventListener('keyup', function(e) {
-    if (!e.shiftKey && winnerModeActive) {
+    if (e.key === '`' && winnerModeActive) {
         if (winnerInput.trim().length > 0) {
             const match = names.find(n => n.toLowerCase().includes(winnerInput.trim()));
             if (match) {
                 winner = match;
-                console.log('Winner set via keyboard to:', winner); // Debug message
+                console.log('Winner set via keyboard to:', winner);
             }
         }
         winnerModeActive = false;
@@ -491,15 +502,15 @@ function playSpinningSound() {
 // Modal close functionality
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('winnerModal');
-    const closeBtn = document.querySelector('.close-modal');
-    const modalCloseBtn = document.querySelector('.modal-close-btn');
+    const modalCloseBtn = document.querySelector('.modal-close-btn-small');
     
     function closeModal() {
         modal.classList.remove('show');
     }
     
-    closeBtn.addEventListener('click', closeModal);
-    modalCloseBtn.addEventListener('click', closeModal);
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', closeModal);
+    }
     
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
