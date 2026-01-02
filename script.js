@@ -14,6 +14,12 @@ let currentRotation = 0;
 // Wheel colors - Blue, White, and Orange matching the theme
 const WHEEL_COLORS = ['#2563a8', '#ffffff', '#fd9201'];
 
+// Performance optimization: Off-screen canvas cache
+let offscreenCanvas = null;
+let offscreenCtx = null;
+let cachedWheelImage = null;
+let cacheValid = false;
+
 // Secret winner mode state
 let winnerModeActive = false;
 let winnerInput = '';
@@ -50,83 +56,128 @@ function getColorIndex(segmentIndex, totalSegments) {
     return segmentIndex % numColors;
 }
 
-// Draw the wheel
-function drawWheel() {
+// Create or update off-screen canvas cache
+function createWheelCache() {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const radius = Math.min(centerX, centerY) - 5;
     
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Create off-screen canvas if it doesn't exist or size changed
+    if (!offscreenCanvas || offscreenCanvas.width !== canvas.width || offscreenCanvas.height !== canvas.height) {
+        offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = canvas.width;
+        offscreenCanvas.height = canvas.height;
+        offscreenCtx = offscreenCanvas.getContext('2d');
+    }
+    
+    // Clear the off-screen canvas
+    offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
     
     if (names.length === 0) {
         // Draw empty wheel with 10 segments
         const segments = 10;
         const anglePerSegment = (2 * Math.PI) / segments;
         
-        // Use 10 segments with 3 colors - will naturally not wrap with same color
         for (let i = 0; i < segments; i++) {
-            const startAngle = i * anglePerSegment + currentRotation;
+            const startAngle = i * anglePerSegment;
             const endAngle = startAngle + anglePerSegment;
             
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-            ctx.closePath();
+            offscreenCtx.beginPath();
+            offscreenCtx.moveTo(centerX, centerY);
+            offscreenCtx.arc(centerX, centerY, radius, startAngle, endAngle);
+            offscreenCtx.closePath();
             
             const colorIndex = getColorIndex(i, segments);
-            ctx.fillStyle = WHEEL_COLORS[colorIndex];
-            ctx.fill();
+            offscreenCtx.fillStyle = WHEEL_COLORS[colorIndex];
+            offscreenCtx.fill();
             
             // Add subtle border between segments
-            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            offscreenCtx.strokeStyle = 'rgba(0,0,0,0.1)';
+            offscreenCtx.lineWidth = 1;
+            offscreenCtx.stroke();
         }
     } else {
         const anglePerSegment = (2 * Math.PI) / names.length;
         
+        // Performance: Determine level of detail for text rendering
+        const shouldDrawText = names.length <= 100;
+        const shouldDrawSomeText = names.length > 100 && names.length <= 300;
+        const textInterval = shouldDrawSomeText ? Math.ceil(names.length / 50) : 1;
+        
         for (let i = 0; i < names.length; i++) {
-            const startAngle = i * anglePerSegment + currentRotation;
+            const startAngle = i * anglePerSegment;
             const endAngle = startAngle + anglePerSegment;
             
             // Draw segment
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-            ctx.closePath();
+            offscreenCtx.beginPath();
+            offscreenCtx.moveTo(centerX, centerY);
+            offscreenCtx.arc(centerX, centerY, radius, startAngle, endAngle);
+            offscreenCtx.closePath();
             
             const colorIndex = getColorIndex(i, names.length);
-            ctx.fillStyle = WHEEL_COLORS[colorIndex];
-            ctx.fill();
+            offscreenCtx.fillStyle = WHEEL_COLORS[colorIndex];
+            offscreenCtx.fill();
             
             // Add subtle border between segments
-            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            offscreenCtx.strokeStyle = 'rgba(0,0,0,0.1)';
+            offscreenCtx.lineWidth = 1;
+            offscreenCtx.stroke();
             
-            // Draw text
-            ctx.save();
-            ctx.translate(centerX, centerY);
-            ctx.rotate(startAngle + anglePerSegment / 2);
-            ctx.textAlign = 'right';
-            // Text color contrasts with background: white text on blue/orange, blue text on white
-            ctx.fillStyle = WHEEL_COLORS[colorIndex] === '#ffffff' ? '#2563a8' : '#ffffff';
-            ctx.font = 'bold 14px Arial';
-            ctx.fillText(names[i].substring(0, 15), radius - 20, 5);
-            ctx.restore();
+            // Draw text with level-of-detail optimization
+            if (shouldDrawText || (shouldDrawSomeText && i % textInterval === 0)) {
+                offscreenCtx.save();
+                offscreenCtx.translate(centerX, centerY);
+                offscreenCtx.rotate(startAngle + anglePerSegment / 2);
+                offscreenCtx.textAlign = 'right';
+                // Text color contrasts with background: white text on blue/orange, blue text on white
+                offscreenCtx.fillStyle = WHEEL_COLORS[colorIndex] === '#ffffff' ? '#2563a8' : '#ffffff';
+                
+                // Adjust font size based on number of segments
+                const fontSize = names.length <= 50 ? 14 : names.length <= 100 ? 12 : 10;
+                offscreenCtx.font = `bold ${fontSize}px Arial`;
+                
+                const maxChars = names.length <= 50 ? 15 : names.length <= 100 ? 10 : 8;
+                offscreenCtx.fillText(names[i].substring(0, maxChars), radius - 20, 5);
+                offscreenCtx.restore();
+            }
         }
     }
     
     // Draw center circle gradient effect
-    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    const gradient = offscreenCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
     gradient.addColorStop(0, 'rgba(255,255,255,0.1)');
     gradient.addColorStop(0.5, 'rgba(0,0,0,0)');
     gradient.addColorStop(1, 'rgba(0,0,0,0.15)');
     
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = gradient;
-    ctx.fill();
+    offscreenCtx.beginPath();
+    offscreenCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    offscreenCtx.fillStyle = gradient;
+    offscreenCtx.fill();
+    
+    cacheValid = true;
+}
+
+// Draw the wheel using cached image and rotation
+function drawWheel() {
+    // Recreate cache if invalid
+    if (!cacheValid) {
+        createWheelCache();
+    }
+    
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    // Clear main canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Use CSS transform for rotation instead of redrawing
+    // But for compatibility, we'll use canvas transform
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(currentRotation);
+    ctx.translate(-centerX, -centerY);
+    ctx.drawImage(offscreenCanvas, 0, 0);
+    ctx.restore();
 }
 
 // Listen for Backtick+Name shortcut (hold backtick while typing)
@@ -218,6 +269,8 @@ function updateNamesFromInput() {
     if (winner && !names.includes(winner)) {
         winner = '';
     }
+    // Invalidate cache when names change
+    cacheValid = false;
     drawWheel();
 }
 
@@ -250,10 +303,10 @@ function spinToWinner(winnerName) {
     // Start spinning sound
     const spinSound = playSpinningSound();
     
-    // Create sparkles during spin
+    // Create sparkles during spin (reduced frequency for performance)
     const sparkleInterval = setInterval(() => {
         createSparkles();
-    }, 100);
+    }, 150);
     
     const n = names.length;
     const winnerIndex = names.indexOf(winnerName);
@@ -279,9 +332,21 @@ function spinToWinner(winnerName) {
     const duration = 7000 + Math.random() * 1000;
     
     console.log('Spinning to winner:', winnerName, 'at index:', winnerIndex); // Debug message
+    
+    // Performance optimization: Track last frame time to avoid unnecessary redraws
+    let lastFrameTime = 0;
+    const frameInterval = 1000 / 60; // Target 60 FPS
 
     function animateWheel(timestamp) {
         if (!startTimestamp) startTimestamp = timestamp;
+        
+        // Throttle to 60 FPS max
+        if (timestamp - lastFrameTime < frameInterval) {
+            requestAnimationFrame(animateWheel);
+            return;
+        }
+        lastFrameTime = timestamp;
+        
         const elapsed = timestamp - startTimestamp;
         const progress = Math.min(1, elapsed / duration);
         
@@ -333,6 +398,8 @@ function showWinner(winnerName) {
         names.splice(winnerIndex, 1);
         // Update the textarea to reflect the removal
         namesInput.value = names.join('\n');
+        // Invalidate cache when names change
+        cacheValid = false;
         // Redraw the wheel with remaining names
         drawWheel();
     }
@@ -518,6 +585,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Load test names if available (for performance testing)
+    const testNames = localStorage.getItem('testNames');
+    if (testNames) {
+        namesInput.value = testNames;
+        updateNamesFromInput();
+        console.log('Loaded test data:', names.length, 'names');
+        // Clear it after loading
+        localStorage.removeItem('testNames');
+    }
+    
     // Resize canvas based on CSS dimensions
     function resizeCanvas() {
         const canvasStyle = window.getComputedStyle(canvas);
@@ -528,6 +605,9 @@ document.addEventListener('DOMContentLoaded', function() {
         canvas.width = width;
         canvas.height = height;
         
+        // Invalidate cache on resize
+        cacheValid = false;
+        
         // Redraw wheel with new dimensions
         drawWheel();
     }
@@ -535,8 +615,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial resize
     resizeCanvas();
     
-    // Handle window resize
-    window.addEventListener('resize', resizeCanvas);
+    // Handle window resize with debouncing for better performance
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(resizeCanvas, 100);
+    });
     
     // Disable spin button initially
     spinBtn.disabled = true;
