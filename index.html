@@ -4,15 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wheel of Names</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=41">
 </head>
 <body>
-    <div class="logo-branding">
-        <img src="images/t2bbb.png" alt="TIME2BET Logo" class="logo-img">
+
+    <!-- Giveaways/Prizes section -->
+    <div class="giveaways-container">
+        <img src="images/Giveawaysbox.png" alt="Giveaways Box" class="giveaways-box">
+        
+        <!-- Prizes Content -->
+        <div class="prizes-section">
+            <h2 class="prizes-title">PRIZES</h2>
+            <div class="prize-item">
+                <img src="images/iphone.png" alt="iPhone 17 Pro" class="prize-phone">
+                <p class="prize-label">iPhone 17 Pro</p>
+            </div>
+            <div class="prize-item">
+                <img src="images/infinix.png" alt="Infinix GT20 PRO" class="prize-phone">
+                <p class="prize-label">Infinix GT20 PRO</p>
+            </div>
+        </div>
     </div>
 
-    <div class="names-container">
+    <!-- Wheel of Names Title (separate) -->
+    <div class="title-container">
         <h1><img src="images/wheel of names.png" alt="Wheel of Names"></h1>
+    </div>
+
+    <!-- Names List (separate) -->
+    <div class="names-container">
         <div class="list-frame-wrapper">
             <img src="images/list frame.png" alt="Frame" class="list-frame">
             <form id="namesForm">
@@ -26,7 +46,7 @@
             <div class="wheel-frame">
                 <img src="images/frame.png" alt="Frame">
             </div>
-            <canvas id="wheelCanvas" width="670" height="670"></canvas>
+            <canvas id="wheelCanvas" width="600" height="600"></canvas>
             <div class="spin-pointer-group">
                 <div class="wheel-pointer">
                     <img src="images/pointer.png" alt="Pointer" class="pointer-img">

@@ -32,12 +32,99 @@ body::before {
     100% { transform: translate(50px, 50px); }
 }
 
+/* Giveaways/Prizes container */
+.giveaways-container {
+    position: absolute;
+    left: 8%;
+    top: 55%;
+    transform: translateY(-50%);
+    z-index: 1;
+    animation: fadeInLeft 0.6s ease-out;
+}
+
+.giveaways-box {
+    width: 850px;
+    height: auto;
+    display: block;
+    opacity: 0.9;
+}
+
+.prizes-section {
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    padding: 40px;
+    z-index: 10;
+}
+
+.prizes-title {
+    position: relative;
+    width: 243px;
+    height: 25.39px;
+    font-family: 'Changa', sans-serif;
+    font-style: normal;
+    font-weight: 800;
+    font-size: 36px;
+    line-height: 66px;
+    text-align: center;
+    color: #DD9006;
+    margin: 0 auto 40px auto;
+    top: 30px;
+}
+
+.prize-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.prize-phone {
+    width: 260px;
+    height: auto;
+    margin-bottom: -10px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.prize-label {
+    font-family: 'Arial', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: #FFFFFF;
+    text-align: center;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Move Infinix prize up */
+.prize-item:nth-child(3) {
+    margin-top: -30px;
+}
+
+/* Make iPhone text closer to image */
+.prize-item:nth-child(2) .prize-label {
+    margin-top: -15px;
+}
+
+/* Title container (separate from list) */
+.title-container {
+    position: absolute;
+    left: 13%;
+    top: 15%;
+    transform: translateY(-50%);
+    z-index: 50;
+    text-align: center;
+    animation: fadeInLeft 0.6s ease-out;
+}
+
 .names-container {
     position: absolute;
-    left: 15%;
-    top: 50%;
+    left: 22% !important;
+    top: 50% !important;
     transform: translateY(-50%);
-    max-width: 320px;
+    max-width: 240px;
     width: 100%;
     height: auto;
     background: transparent;
@@ -66,7 +153,7 @@ body::before {
 
 .wheel-container {
     position: absolute;
-    left: 65%;
+    left: 68%;
     top: 50%;
     transform: translate(-50%, -50%);
     display: flex;
@@ -79,8 +166,8 @@ body::before {
 
 .wheel-wrapper {
     position: relative;
-    width: 650px;
-    height: 650px;
+    width: 800px;
+    height: 800px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -92,8 +179,8 @@ body::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 650px;
-    height: 650px;
+    width: 900px;
+    height: 900px;
     z-index: 10;
     pointer-events: none;
     transition: filter 0.3s ease;
@@ -124,7 +211,7 @@ body::before {
 
 .wheel-pointer {
     position: absolute;
-    top: -50px;
+    top: -40px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 14;
@@ -133,7 +220,7 @@ body::before {
 }
 
 .pointer-img {
-    width: 80px;
+    width: 65px;
     height: auto;
 }
 
@@ -155,13 +242,15 @@ body::before {
     border-radius: 50%;
     box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
     border: none;
+    width: 780px !important;
+    height: 780px !important;
 }
 
 #spinBtn {
     position: relative;
-    width: 160px;
-    height: 160px;
-    min-width: 160px;
+    width: 170px;
+    height: 170px;
+    min-width: 170px;
     border-radius: 50%;
     background: transparent !important;
     border: none !important;
@@ -226,16 +315,15 @@ body::before {
 h1 {
     font-size: 1.8rem;
     font-weight: bold;
-    margin: 0 0 15px 0;
+    margin: 0;
     color: #fd9201;
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     letter-spacing: 2px;
     position: relative;
-    top: 10px;
 }
 
 h1 img {
-    width: 280px;
+    width: 450px;
     height: auto;
 }
 
@@ -279,14 +367,14 @@ textarea {
     position: relative;
     width: 320px;
     height: 480px;
-    overflow: hidden;
+    overflow: visible;
     border-radius: 50px;
 }
 
 .list-frame {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 10px;
     width: 100%;
     height: 100%;
     object-fit: fill;
@@ -297,13 +385,14 @@ textarea {
 
 .list-frame-wrapper #namesForm {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
+    top: 10px;
+    left: 10px;
+    right: 20px;
+    bottom: 22px;
     z-index: 5;
     overflow: hidden;
-    border-radius: 42px;
+    border-radius: 35px;
+    height: 400px;
 }
 
 .list-frame-wrapper textarea {
@@ -324,6 +413,8 @@ textarea {
         #d5d6ec 64px
     ) !important;
     background-attachment: local !important;
+    overflow-y: auto;
+    resize: none;
 }
 
 input[type="text"]:focus, textarea:focus {
@@ -931,23 +1022,23 @@ button:disabled::before {
     }
     
     .wheel-frame {
+        width: 850px;
+        height: 850px;
+    }
+    
+    #wheelCanvas {
         width: 750px;
         height: 750px;
     }
     
-    #wheelCanvas {
-        width: 670px;
-        height: 670px;
-    }
-    
     .names-container {
-        left: 18%;
-        max-width: 380px;
+        left: 25%;
+        max-width: 280px;
     }
     
     .list-frame-wrapper {
-        width: 380px;
-        height: 580px;
+        width: 280px;
+        height: 420px;
     }
     
     .girl-decoration {
@@ -961,6 +1052,22 @@ button:disabled::before {
     #spinBtn {
         width: 200px !important;
         height: 200px !important;
+    }
+    
+    .giveaways-container {
+        left: 8%;
+    }
+    
+    .giveaways-box {
+        width: 900px;
+    }
+    
+    .prizes-section {
+        left: 20%;
+    }
+    
+    .prize-phone {
+        width: 280px;
     }
 }
 
@@ -976,23 +1083,23 @@ button:disabled::before {
     }
     
     .wheel-frame {
+        width: 750px;
+        height: 750px;
+    }
+    
+    #wheelCanvas {
         width: 650px;
         height: 650px;
     }
     
-    #wheelCanvas {
-        width: 580px;
-        height: 580px;
-    }
-    
     .names-container {
-        left: 12%;
-        max-width: 320px;
+        left: 19%;
+        max-width: 240px;
     }
     
     .list-frame-wrapper {
-        width: 320px;
-        height: 480px;
+        width: 240px;
+        height: 360px;
     }
     
     .girl-decoration {
@@ -1006,6 +1113,22 @@ button:disabled::before {
     #spinBtn {
         width: 160px !important;
         height: 160px !important;
+    }
+    
+    .giveaways-container {
+        left: 7%;
+    }
+    
+    .giveaways-box {
+        width: 800px;
+    }
+    
+    .prizes-section {
+        left: 20%;
+    }
+    
+    .prize-phone {
+        width: 240px;
     }
 }
 
@@ -1021,23 +1144,23 @@ button:disabled::before {
     }
     
     .wheel-frame {
+        width: 700px;
+        height: 700px;
+    }
+    
+    #wheelCanvas {
         width: 600px;
         height: 600px;
     }
     
-    #wheelCanvas {
-        width: 540px;
-        height: 540px;
-    }
-    
     .names-container {
-        left: 8%;
-        max-width: 300px;
+        left: 15%;
+        max-width: 220px;
     }
     
     .list-frame-wrapper {
-        width: 300px;
-        height: 450px;
+        width: 220px;
+        height: 330px;
     }
     
     .girl-decoration {
@@ -1060,6 +1183,26 @@ button:disabled::before {
     h1 img {
         width: 240px;
     }
+    
+    .giveaways-container {
+        left: 6%;
+    }
+    
+    .giveaways-box {
+        width: 700px;
+    }
+    
+    .prizes-section {
+        left: 18%;
+    }
+    
+    .prize-phone {
+        width: 200px;
+    }
+    
+    .prizes-title {
+        font-size: 30px;
+    }
 }
 
 /* Small Desktop / Large Laptop (1024px - 1279px) */
@@ -1074,23 +1217,23 @@ button:disabled::before {
     }
     
     .wheel-frame {
+        width: 620px;
+        height: 620px;
+    }
+    
+    #wheelCanvas {
         width: 520px;
         height: 520px;
     }
     
-    #wheelCanvas {
-        width: 470px;
-        height: 470px;
-    }
-    
     .names-container {
-        left: 5%;
-        max-width: 280px;
+        left: 12%;
+        max-width: 200px;
     }
     
     .list-frame-wrapper {
-        width: 280px;
-        height: 420px;
+        width: 200px;
+        height: 300px;
     }
     
     .girl-decoration {
@@ -1121,6 +1264,33 @@ button:disabled::before {
     .logo-img {
         width: 150px;
     }
+    
+    .giveaways-container {
+        left: 5%;
+        top: 58%;
+    }
+    
+    .giveaways-box {
+        width: 600px;
+    }
+    
+    .prizes-section {
+        left: 18%;
+        padding: 30px;
+    }
+    
+    .prize-phone {
+        width: 160px;
+    }
+    
+    .prizes-title {
+        font-size: 26px;
+        margin-bottom: 25px;
+    }
+    
+    .prize-label {
+        font-size: 14px;
+    }
 }
 
 /* Laptop (900px - 1023px) */
@@ -1135,23 +1305,23 @@ button:disabled::before {
     }
     
     .wheel-frame {
+        width: 550px;
+        height: 550px;
+    }
+    
+    #wheelCanvas {
         width: 450px;
         height: 450px;
     }
     
-    #wheelCanvas {
-        width: 400px;
-        height: 400px;
-    }
-    
     .names-container {
-        left: 3%;
-        max-width: 250px;
+        left: 10%;
+        max-width: 180px;
     }
     
     .list-frame-wrapper {
-        width: 250px;
-        height: 380px;
+        width: 180px;
+        height: 270px;
     }
     
     .girl-decoration {
@@ -1182,6 +1352,38 @@ button:disabled::before {
     .logo-img {
         width: 130px;
     }
+    
+    .giveaways-container {
+        left: 4%;
+        top: 60%;
+    }
+    
+    .giveaways-box {
+        width: 480px;
+    }
+    
+    .prizes-section {
+        left: 15%;
+        padding: 20px;
+    }
+    
+    .prize-phone {
+        width: 130px;
+    }
+    
+    .prizes-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+        width: 180px;
+    }
+    
+    .prize-label {
+        font-size: 12px;
+    }
+    
+    .prize-item {
+        margin-bottom: 10px;
+    }
 }
 
 /* Small Laptop (768px - 899px) */
@@ -1196,23 +1398,23 @@ button:disabled::before {
     }
     
     .wheel-frame {
+        width: 500px;
+        height: 500px;
+    }
+    
+    #wheelCanvas {
         width: 400px;
         height: 400px;
     }
     
-    #wheelCanvas {
-        width: 360px;
-        height: 360px;
-    }
-    
     .names-container {
-        left: 2%;
-        max-width: 220px;
+        left: 9%;
+        max-width: 160px;
     }
     
     .list-frame-wrapper {
-        width: 220px;
-        height: 340px;
+        width: 160px;
+        height: 240px;
     }
     
     .girl-decoration {
@@ -1255,6 +1457,42 @@ button:disabled::before {
     
     .winner-name-popup {
         font-size: 1.8rem;
+    }
+    
+    .giveaways-container {
+        left: 3%;
+        top: 62%;
+    }
+    
+    .giveaways-box {
+        width: 400px;
+    }
+    
+    .prizes-section {
+        left: 12%;
+        padding: 15px;
+    }
+    
+    .prize-phone {
+        width: 110px;
+    }
+    
+    .prizes-title {
+        font-size: 18px;
+        margin-bottom: 15px;
+        width: 150px;
+    }
+    
+    .prize-label {
+        font-size: 11px;
+    }
+    
+    .prize-item {
+        margin-bottom: 8px;
+    }
+    
+    .prize-item:nth-child(3) {
+        margin-top: -15px;
     }
 }
 
